@@ -1,22 +1,11 @@
 import axios from '@/libs/api.request'
-//获取设备列表
-export const getDeviceList = ({pageNum, pageSize,lock_no,qr_code_no,device_no,lock_mac,state,user_id,hospital}) => {
-  var new_user_id = app.$store.state.user.token
-  if (app.$store.state.user.acc.indexOf(+new_user_id)>-1){
-    new_user_id = user_id
-  }
+//获取产品列表
+export const getDeviceList = ({pageNum, pageSize}) => {
   return axios.request({
-    url: 'lockInfo/pageByLockInfo',
+    url: 'product/pageByProduct',
     data: {
       pageNum,
       pageSize,
-      lock_no,
-      qr_code_no,
-      device_no,
-      lock_mac,
-      state,
-      user_id:new_user_id,
-      hospital,
     },
     headers:{
       "ticket":app.$store.state.user.token
@@ -24,10 +13,10 @@ export const getDeviceList = ({pageNum, pageSize,lock_no,qr_code_no,device_no,lo
     method: 'post'
   })
 }
-//编辑锁信息
+//编辑产品信息
 export const updateDevice = (data) => {
   return axios.request({
-    url: 'lockInfo/update',
+    url: 'product/update',
     data: {
       ...data
     },

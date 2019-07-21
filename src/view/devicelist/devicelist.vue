@@ -1,54 +1,54 @@
 <template>
   <div class="userlist">
     <div class="search-div">
-      <Form ref="formInline" :model="formInline" :rules="ruleInline" inline>
-        <FormItem prop="user_id" class="search-item">
-          <span>用户id：</span>
-          <Input v-model="formInline.user_id" placeholder="请输入用户id" number clearable style="width: 200px" />
-        </FormItem>
-        <FormItem prop="lock_no" class="search-item">
-          <span>设备编号：</span>
-          <Input v-model="formInline.lock_no" placeholder="请输入设备编号" number clearable style="width: 200px" />
-        </FormItem>
-        <FormItem prop="qr_code_no" class="search-item">
-          <span>二维码编号：</span>
-          <Input v-model="formInline.qr_code_no" placeholder="请输入二维码编号" number clearable style="width: 200px" />
-        </FormItem>
-        <FormItem prop="device_no" class="search-item">
-          <span>柜子编号：</span>
-          <Input v-model="formInline.device_no" placeholder="请输入柜子编号" number clearable style="width: 200px" />
-        </FormItem>
-        <FormItem prop="lock_mac" class="search-item">
-          <span>锁MAC：</span>
-          <Input v-model="formInline.lock_mac" placeholder="请输入锁MAC" number clearable style="width: 200px" />
-        </FormItem>
-        <FormItem prop="hospital" class="search-item">
-          <span>锁所属医院：</span>
-          <Input v-model="formInline.hospital" placeholder="请输入医院" number clearable style="width: 200px" />
-        </FormItem>
-        <FormItem prop="state" class="search-item">
-          <span>锁状态：</span>
-          <Select v-model="formInline.state" style="width:200px">
-            <Option v-for="item in stateList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-          </Select>
-        </FormItem>
-        <FormItem>
-          <Button type="primary" @click="handleSubmit('formInline')">搜索</Button>
-          <Button @click="handleReset('formInline')" style="margin-left: 8px">清除条件</Button>
-        </FormItem>
-        <Upload
-          ref="upload"
-          :on-success="handleSuccess"
-          :format="['xlsx','excel']"
-          :max-size="5048"
-          :on-format-error="handleFormatError"
-          :on-exceeded-size="handleMaxSize"
-          :headers="headers"
-          action="https://www.chmbkh.com/lockInfo/importLockInfoData" v-if="access[0] == '1'">
-          <Button icon="ios-cloud-upload-outline">导入设备</Button>
-        </Upload>
-      </Form>
-      <!--<Button size="large" icon="ios-download-outline" type="primary" @click="exportExcel">导出表格</Button>-->
+      <!--<Form ref="formInline" :model="formInline" :rules="ruleInline" inline>-->
+        <!--<FormItem prop="user_id" class="search-item">-->
+          <!--<span>用户id：</span>-->
+          <!--<Input v-model="formInline.user_id" placeholder="请输入用户id" number clearable style="width: 200px" />-->
+        <!--</FormItem>-->
+        <!--<FormItem prop="lock_no" class="search-item">-->
+          <!--<span>设备编号：</span>-->
+          <!--<Input v-model="formInline.lock_no" placeholder="请输入设备编号" number clearable style="width: 200px" />-->
+        <!--</FormItem>-->
+        <!--<FormItem prop="qr_code_no" class="search-item">-->
+          <!--<span>二维码编号：</span>-->
+          <!--<Input v-model="formInline.qr_code_no" placeholder="请输入二维码编号" number clearable style="width: 200px" />-->
+        <!--</FormItem>-->
+        <!--<FormItem prop="device_no" class="search-item">-->
+          <!--<span>柜子编号：</span>-->
+          <!--<Input v-model="formInline.device_no" placeholder="请输入柜子编号" number clearable style="width: 200px" />-->
+        <!--</FormItem>-->
+        <!--<FormItem prop="lock_mac" class="search-item">-->
+          <!--<span>锁MAC：</span>-->
+          <!--<Input v-model="formInline.lock_mac" placeholder="请输入锁MAC" number clearable style="width: 200px" />-->
+        <!--</FormItem>-->
+        <!--<FormItem prop="hospital" class="search-item">-->
+          <!--<span>锁所属医院：</span>-->
+          <!--<Input v-model="formInline.hospital" placeholder="请输入医院" number clearable style="width: 200px" />-->
+        <!--</FormItem>-->
+        <!--<FormItem prop="state" class="search-item">-->
+          <!--<span>锁状态：</span>-->
+          <!--<Select v-model="formInline.state" style="width:200px">-->
+            <!--<Option v-for="item in stateList" :value="item.value" :key="item.value">{{ item.label }}</Option>-->
+          <!--</Select>-->
+        <!--</FormItem>-->
+        <!--<FormItem>-->
+          <!--<Button type="primary" @click="handleSubmit('formInline')">搜索</Button>-->
+          <!--<Button @click="handleReset('formInline')" style="margin-left: 8px">清除条件</Button>-->
+        <!--</FormItem>-->
+        <!--<Upload-->
+          <!--ref="upload"-->
+          <!--:on-success="handleSuccess"-->
+          <!--:format="['xlsx','excel']"-->
+          <!--:max-size="5048"-->
+          <!--:on-format-error="handleFormatError"-->
+          <!--:on-exceeded-size="handleMaxSize"-->
+          <!--:headers="headers"-->
+          <!--action="https://www.chmbkh.com/lockInfo/importLockInfoData" v-if="access[0] == '1'">-->
+          <!--<Button icon="ios-cloud-upload-outline">导入设备</Button>-->
+        <!--</Upload>-->
+      <!--</Form>-->
+      <Button size="large" icon="md-add" type="primary" @click="exportExcel">添加产品</Button>
     </div>
     <Table border :columns="columns" :data="tableData" stripe ref="userTable"></Table>
     <div class="page">
@@ -60,19 +60,24 @@
       title="编辑锁信息"
       @on-ok="updateDevice"
       @on-cancel="cancel">
-      <h3>锁二维码编号：{{this.tableData[this.selectIndex]&&this.tableData[this.selectIndex].qr_code_no}}</h3>
-      <div class="input-item"><span>代理商：</span><Input v-model.trim="inputUserId" placeholder="请输入用户ID" style="width: 200px" /></div>
-      <div class="input-item"><span>绑定医院：</span><Input v-model.trim="hospital" placeholder="请输入医院" style="width: 200px" /></div>
-      <div class="input-item"><span>科室：</span><Input v-model.trim="department" placeholder="请输入科室" style="width: 200px" /></div>
-      <div class="input-item"><span>查询用户：</span><Input v-model.trim="bind_user" placeholder="请输入用户ID,使用英文的逗号隔开" style="width: 400px" /></div>
-    </Modal>
-    <Modal
-      v-model="showEditPrice"
-      title="编辑锁价格"
-      @on-ok="updateDevicePrice"
-      @on-cancel="cancel">
-      <h3>锁二维码编号：{{this.tableData[this.selectIndex]&&this.tableData[this.selectIndex].qr_code_no}}</h3>
-      <div class="input-item"><span>价格：</span><Input v-model.trim="inputPrice" placeholder="请输入价格" style="width: 200px" /></div>
+      <Form ref="formInline" :model="formInline" :rules="ruleInline">
+        <FormItem prop="name" class="search-item">
+          <span>产品名称：</span><Input v-model.trim="formInline.name" placeholder="请输入产品名" style="width: 200px" />
+        </FormItem>
+        <FormItem prop="price" class="search-item">
+          <span>产品价格：</span><Input v-model.trim="formInline.price" placeholder="请输入产品价格" style="width: 200px" />
+        </FormItem>
+        <FormItem prop="type" class="search-item">
+          <span>产品类型：</span><Input v-model.trim="formInline.type" placeholder="请输入科室" style="width: 200px" />
+        </FormItem>
+        <FormItem prop="imgs" class="search-item">
+          <span>产品图片：</span><Input v-model.trim="formInline.imgs" placeholder="请输入产品描述"style="width: 200px" />
+        </FormItem>
+        <FormItem prop="desc" class="search-item">
+          <span>产品描述：</span><Input v-model.trim="formInline.desc" placeholder="请输入产品描述" style="width: 400px" />
+        </FormItem>
+      </Form>
+      <!--<div class="input-item"></div>-->
     </Modal>
   </div>
 </template>
@@ -98,13 +103,12 @@
         bind_user:'', //绑定的用户
         inputPrice:'',  //锁价格
         formInline: {
-          lock_no: '',
-          qr_code_no:'',  //二维码编号
-          device_no:'',   //柜子编号
-          lock_mac:'',  //锁mac地址
-          state:'',     //锁状态
-          hospital:'',  //锁所属医院
-          user_id:'',   //用户ID
+          name: '',   //产品名
+          price:'',  //价格
+          imgs:'',   //图片
+          desc:'',  //描述
+          type:'',     //类型
+          id:'',   //产品Id
         },
         stateList:[
           {value:'',label:'全部'},
@@ -120,63 +124,39 @@
         thisPage:1,
         selectIndex:0,     //选中的索引
         ruleInline: {
-          user_id: [
-            // { required: true, message: 'Please fill in the password.', trigger: 'blur' },
-            // { len: 11, message: '请输入正确的手机号', trigger: 'blur' }
-            // { type: 'string', min:11, message: '请输入数字', trigger: 'blur' },
-          ]
+          name: [{ required: true, message: '请输入产品名', trigger: 'blur' },],
+          price: [{ required: true, message: '请输入产品价格', trigger: 'blur' },],
+          imgs: [{ required: true, message: '请上传产品图片', },],
         },
         columns: [
-          {title: '二维码编号', key: 'qr_code_no'},
-          {title: '设备编号', key: 'lock_no',},
-          // {title: '柜子编号', key: 'device_no'},
-          {title: '设备密码', key: 'lock_pwd',
-            render:(h, params)=>{
-              if(app.$store.state.user.access[0] == '1'){
-                return h('div', params.row.lock_pwd)
-              }else {
-                return h('div', '-')
-              }
-            }
-          },
-          {title: '设备秘钥', key: 'lock_key',
-            render:(h, params)=>{
-              if(app.$store.state.user.access[0] == '1'){
-                return h('div', params.row.lock_key)
-              }else {
-                return h('div', '-')
-              }
-            }
-          },
-          {title: '锁MAC', key: 'lock_mac',
-            render:(h, params)=>{
-              if(app.$store.state.user.access[0] == '1'){
-                return h('div', params.row.lock_mac)
-              }else {
-                return h('div', '-')
-              }
-            }
-          },
-          {title: '锁所属医院', key: 'hospital'},
-          {title: '科室', key: 'department'},
-          {title: '单价', key: 'unit_price',
-              render: (h, params) => {
-              return h('div', params.row.unit_price/100)
-            }
-          },
-          {title: '电量', key: 'battery',
+          {title: '产品名称', key: 'name'},
+          {title: '产品价格', key: 'price',},
+          {title: '产品类型', key: 'type',},
+          {title: '产品描述', key: 'desc',},
+          {title: '产品图片', key: 'imgs',
             render: (h, params) => {
-              return h('div', Math.abs(params.row.battery)+"%")
+              return h('div', [
+                h('img', {
+                  attrs : {
+                    src:params.row.imgs
+                  },
+                  style: {width: '200px'},
+                  on: {click: () => {
+                      this.selectIndex = params.index
+                      this.showEdit = true
+                      this.formInline = {...params.row }
+                    }}
+                }),
+              ])
             }
           },
-          {title: '锁状态', key: 'state',
-            render: (h, params) => {
-              return h('div', this.stateMap[params.row.state])
-            }
-          },
+          // {title: '锁状态', key: 'state',
+          //   render: (h, params) => {
+          //     return h('div', this.stateMap[params.row.state])
+          //   }
+          // },
           {title: '操作', key: 'action', width: 200, align: 'center',
             render: (h, params) => {
-              if(this.access[0] == '1'){
                 return h('div', [
                   h('Button', {
                     props: {type: 'primary', size: 'small'},
@@ -184,31 +164,10 @@
                     on: {click: () => {
                         this.selectIndex = params.index
                         this.showEdit = true
-                        this.inputUserId = this.tableData[params.index].user_id
-                        this.hospital = this.tableData[params.index].hospital
-                        this.department = this.tableData[params.index].department
-                        this.bind_user = this.tableData[params.index].bind_user
+                        this.formInline = {...params.row }
                     }}
                   }, '编辑信息'),
-                  h('Button', {
-                    props: {type: 'primary', size: 'small'},
-                    style: {marginRight: '5px'},
-                    on: {click: () => {
-                        this.selectIndex = params.index
-                        this.showEditPrice = true
-                        this.inputPrice = this.tableData[params.index].unit_price/100
-                      }}
-                  }, '编辑价格'),
                 ])
-              }else {
-                return h('div', [
-                  h('Button', {
-                    props: {type: 'primary', size: 'small'},
-                    style: {marginRight: '5px'},
-                    on: {click: () => {this.show(params.index)}}
-                  }, '查看')
-                ])
-              }
             }
           }
         ],
@@ -247,7 +206,7 @@
             ...this.formInline
           }
           getDeviceList(data).then(res => {
-            console.log('设备列表----',res)
+            console.log('产品列表----',res)
             const data = res.data
             this.tableData = res.data.data.list.length?res.data.data.list:[]
             this.total = res.data.data.total
@@ -275,68 +234,40 @@
       },
       //编辑锁信息
       updateDevice(){
-        if(!this.inputUserId){
-          this.$Message.error('请输入代理商')
-          return
-        }
-        var bind_user
-        bind_user = this.bind_user?this.bind_user+','+ this.inputUserId:''+this.inputUserId
-        bind_user = uniq(bind_user.split(','))
-        if(bind_user.length > 8){
-          this.$Message.error('不得超过8个账号')
-          return
-        }
-        var data = {
-          id:this.tableData[this.selectIndex].id,
-          user_id:this.inputUserId,
-          hospital:this.hospital,
-          department:this.department,
-          bind_user:bind_user.join(','),
-        }
-        updateDevice(data).then((res)=>{
-          console.log('编辑锁信息--------',res)
-          if(res.data.code === 100){
-            this.tableData[this.selectIndex].user_id = this.inputUserId
-            this.tableData[this.selectIndex].hospital = this.hospital
-            this.tableData[this.selectIndex].department = this.department
-            this.tableData[this.selectIndex].bind_user = data.bind_user
-            this.$Message.success('操作成功!')
+        this.$refs['formInline'].validate((valid) => {
+          console.log('校验结果',valid)
+          if (valid) {
+            var data = {
+              ...this.formInline
+            }
+            updateDevice(data).then((res)=>{
+              console.log('编辑锁信息--------',res)
+              if(res.data.code === 100){
+                this.tableData[this.selectIndex] = {...this.formInline}
+                this.$Message.success('操作成功!')
+                this.resetForm()
+              }
+            }).catch(err => {
+              this.$Message.error('操作失败!')
+            })
           }
-        }).catch(err => {
-          this.$Message.error('操作失败!')
         })
       },
-      //编辑锁价格
-      updateDevicePrice(){
-        var data = {
-          // id:this.tableData[this.selectIndex].id,
-          unit_price:this.inputPrice*100,
-          user_id:this.tableData[this.selectIndex].user_id,
-          hospital:this.tableData[this.selectIndex].hospital,
+      //重置formInline数据
+      resetForm () {
+        this.formInline = {
+          name: '',   //产品名
+          price:'',  //价格
+          imgs:'',   //图片
+          desc:'',  //描述
+          type:'',     //类型
+          id:'',   //产品Id
         }
-        updateDevicePrice(data).then((res)=>{
-          console.log('编辑锁信息--------',res)
-          if(res.data.code === 100){
-            //重新请求列表
-            this.getDeviceList()
-            this.$Message.success('操作成功!')
-          }
-        }).catch(err => {
-          this.$Message.error('操作失败!')
-        })
       },
       //关闭弹窗
       cancel(){
         this.showEdit = false
         this.showEditPrice = false
-      },
-      show (index) {
-        this.$Modal.info({
-          title: '锁信息',
-          content: `锁二维码：${this.tableData[index].qr_code_no}<br>
-        所属医院：${this.tableData[index].hospital}<br>
-        锁状态：${this.stateMap[this.tableData[index].status]}`
-        })
       },
       handleReset (name) {
         this.$refs[name].resetFields()
@@ -417,5 +348,10 @@
         width: 75px;text-align: right;
       }
     }
+  }
+</style>
+<style lang="less">
+  .ivu-form-item-error-tip{
+    margin-left: 60px;
   }
 </style>

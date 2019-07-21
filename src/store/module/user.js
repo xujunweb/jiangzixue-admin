@@ -6,7 +6,7 @@ export default {
     userName: '',
     userId: '',
     avatorImgPath: '',
-    token: getToken(),
+    token: getToken() || 1,
     access: JSON.parse(getCookies('access'))||[],
     typeMap:{
       0:'PT',
@@ -39,8 +39,8 @@ export default {
       setCookies('access',state.access)
     },
     setToken (state, token) {
-      state.token = token
-      setToken(token)
+      state.token = token || 1
+      setToken(token || 1)
     }
   },
   actions: {

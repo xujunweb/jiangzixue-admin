@@ -66,7 +66,7 @@
       </Upload>
     </div>
     <div class="block"></div>
-    <div class="title-h2">产品图片<span>(图片比例建议800X600,大小不超过5M)</span></div>
+    <div class="title-h2">产品页banner<span>(图片比例建议800X600,大小不超过5M)</span></div>
     <div class="imgList moudel">
       <div v-for="(item,key) in uploadList3" class="upload-list">
         <div class="demo-upload-list" >
@@ -100,12 +100,9 @@
           <Icon type="ios-camera" size="40"></Icon>
         </div>
       </Upload>
-      <div class="save">
-        <Button type="primary" @click="saveProImg">保存</Button>
-      </div>
     </div>
     <div class="block"></div>
-    <div class="title-h2">关于我们banner图<span>(图片比例建议1920X600,大小不超过5M)</span></div>
+    <div class="title-h2">合作页banner<span>(图片比例建议1920X600,大小不超过5M)</span></div>
     <div class="imgList moudel">
       <div class="demo-upload-list" v-for="(item,key) in uploadList4">
         <template v-if="!item.showProgress || item.showProgress == 100">
@@ -118,7 +115,7 @@
         <Progress v-if="item.showProgress" :percent="item.percentage" hide-info></Progress>
       </div>
       <Upload
-        ref="upload2"
+        ref="upload4"
         :show-upload-list="false"
         :default-file-list="defaultList"
         :on-success="handleSuccess"
@@ -137,44 +134,8 @@
         </div>
       </Upload>
     </div>
-    <div class="block"></div>
-    <div class="title-h2">计费设置</div>
-    <div class="time moudel">
-      <div class="item">
-        <span>每小时计费：</span><InputNumber :max="99" :min="1" v-model="money" :disabled="disabled"></InputNumber>
-        <Button type="primary" @click="editMoney" class="button">{{disabled?'编辑':'保存'}}</Button>
-      </div>
-      <div class="item">
-        <span>选时选项：</span>
-        <Dropdown>
-          <a href="javascript:void(0)">
-            可选项
-            <Icon type="ios-arrow-down"></Icon>
-          </a>
-          <DropdownMenu slot="list">
-            <DropdownItem v-for="item in timeList">{{item}}</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-        <Button type="primary" @click="editOption" class="button">编辑</Button>
-      </div>
-    </div>
-    <div class="block"></div>
-    <div class="title-h2">客服电话</div>
-    <div class="customer moudel">
-      <span>客服电话：</span><Input v-model="phone" :disabled="cusDisabled" style="width: 200px"></Input>
-      <Button type="primary" @click="editCustomer" class="button">{{cusDisabled?'编辑':'保存'}}</Button>
-    </div>
     <Modal title="View Image" v-model="visible">
       <img :src="imgName" v-if="visible" style="width: 100%">
-    </Modal>
-    <Modal title="编辑选项" v-model="edit" @on-ok="okAdd">
-      <div class="editOption">
-        <div class="item" v-for="(item,index) in newTimeList">
-          <InputNumber :max="99" :min="1" v-model="newTimeList[index]" class="number" ></InputNumber>
-          <Icon type="md-close" size="12" color="#fff" class="icon" @click="removeOption(index)" />
-        </div>
-        <Button type="primary" class="button" @click="addOption">添加</Button>
-      </div>
     </Modal>
     <Modal title="删除图片" v-model="remove" class-name="vertical-center-modal" @on-ok="handleRemove">
       <p>是否确定删除图片？</p>
@@ -185,7 +146,7 @@
 <script>
 import Icons from '../../components/icons/icons'
 import { getAllinfo, updateAppointInfo } from  '@/api/user'
-import { config } from '../../config/index'
+import config from '../../config/index'
 export default {
   name: 'system',
   components: {Icons},
@@ -213,10 +174,10 @@ export default {
       phone:'',
       cusDisabled:true,
       imgMap:{
-        1:'index_img',   //首页图片
-        2:'aboutme_img',  //关于我们大图
-        3:'product_img',   //产品页大图
-        4:'hz_img',   //合作大图
+        1:'customer_service_phone',   //首页图片
+        2:'unit_price',  //关于我们大图
+        3:'carousel_img',   //产品页大图
+        4:'time_option',   //合作大图
       },
       uploadUrl:config.baseUrl.pro+'file/upload', //全局配置
     }
@@ -255,12 +216,12 @@ export default {
       getAllinfo().then(res => {
         const data = res.data
         console.log('所有配置',res)
-        this.phone = data.data[0].value
-        this.money = +((data.data[1].value)/100)
-        this.uploadList1 = data.data[2].value.split(',')
-        this.timeList = data.data[3].value.split(',')
-        this.uploadList2 = data.data[4].value.split(',')
-        this.uploadList3 = JSON.parse(data.data[5].value)
+        // this.phone = data.data[0].value
+        // this.money = +((data.data[1].value)/100)
+        this.uploadList1 = data.data[0].value.split(',')
+        this.uploadList2 = data.data[1].value.split(',')
+        this.uploadList3 = data.data[2].value.split(',')
+        this.uploadList4 = data.data[3].value.split(',')
         this.$Spin.hide()
       }).catch(err => {
         this.$Spin.hide()
@@ -331,25 +292,16 @@ export default {
       // const fileList = this.$refs.upload.fileList
       this.$refs[upload].fileList.splice(this.removeKey, 1)
       this[uploadList].splice(this.removeKey, 1)
-      if(this.imgIndex != 3){
-        this.updateAppointInfo(this.imgMap[this.imgIndex],this[uploadList].join(','))
-      }
+      this.updateAppointInfo(this.imgMap[this.imgIndex],this[uploadList].join(','))
     },
     //上传成功
     handleSuccess (res, file) {
       console.log('小程序轮播图上传成功-------',res,file)
       var uploadList = 'uploadList'+this.imgIndex
-      if(this.imgIndex == 3){
-        for(let i=0,len=res.data.length;i<len;i++){
-          this[uploadList].push({img:res.data[i].url,title:''})
-        }
-        // this.updateAppointInfo(this.imgMap[this.imgIndex],JSON.stringify(this[uploadList]))
-      }else {
-        for(let i=0,len=res.data.length;i<len;i++){
-          this[uploadList].push(res.data[i].url)
-        }
-        this.updateAppointInfo(this.imgMap[this.imgIndex],this[uploadList].join(','))
+      for(let i=0,len=res.data.length;i<len;i++){
+        this[uploadList].push(res.data[i].url)
       }
+      this.updateAppointInfo(this.imgMap[this.imgIndex],this[uploadList].join(','))
     },
     //保存轮播图
     //保存产品图片
@@ -386,10 +338,11 @@ export default {
       return (e)=>{
         this.imgIndex = oldindex
         console.log('上传之前的-----',index,e)
-        const check = this.uploadList1.length < 5
+        var uploadList = 'uploadList'+this.imgIndex
+        const check = this[uploadList].length < 1
         if (!check) {
           this.$Notice.warning({
-            title: '最多只能选择5张图片.'
+            title: '最多只能选择1张图片.'
           })
         }
         return check

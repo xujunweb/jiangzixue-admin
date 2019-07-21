@@ -44,35 +44,35 @@ export default [
       }
     ]
   },
-  {
-    path: '/userlist',
-    name: 'userlist',
-    meta: {
-      access: [1],
-      hide: true,
-      icon: 'md-person',
-      title: '用户管理'
-    },
-    component: Main,
-    children: [
-      {
-        path: 'userlist_page',
-        name: 'userlist_page',
-        meta: {
-          access: [1],
-          icon: 'md-person',
-          title: '用户管理'
-        },
-        component: () => import('@/view/userlist/userlist.vue')
-      }
-    ]
-  },
+  // {
+  //   path: '/userlist',
+  //   name: 'userlist',
+  //   meta: {
+  //     access: [1],
+  //     hide: true,
+  //     icon: 'md-person',
+  //     title: '用户管理'
+  //   },
+  //   component: Main,
+  //   children: [
+  //     {
+  //       path: 'userlist_page',
+  //       name: 'userlist_page',
+  //       meta: {
+  //         access: [1],
+  //         icon: 'md-person',
+  //         title: '用户管理'
+  //       },
+  //       component: () => import('@/view/userlist/userlist.vue')
+  //     }
+  //   ]
+  // },
   {
     path: '/system',
     name: 'system',
     meta: {
       hide: true,
-      access: [1],
+      // access: [1],
       icon: 'md-settings',
       title: '系统设置'
     },
@@ -82,7 +82,7 @@ export default [
         path: 'system_page',
         name: 'system_page',
         meta: {
-          access: [1],
+          // access: [1],
           icon: 'md-settings',
           title: '系统设置'
         },
@@ -90,25 +90,25 @@ export default [
       }
     ]
   },
-  {
-    path: '/orderList',
-    name: 'orderList',
-    meta: {
-      hide: true
-    },
-    component: Main,
-    children: [
-      {
-        path: 'orderList_page',
-        name: 'orderList_page',
-        meta: {
-          icon: 'md-reorder',
-          title: '订单管理'
-        },
-        component: () => import('@/view/orderlist/orderlist.vue')
-      }
-    ]
-  },
+  // {
+  //   path: '/orderList',
+  //   name: 'orderList',
+  //   meta: {
+  //     hide: true
+  //   },
+  //   component: Main,
+  //   children: [
+  //     {
+  //       path: 'orderList_page',
+  //       name: 'orderList_page',
+  //       meta: {
+  //         icon: 'md-reorder',
+  //         title: '订单管理'
+  //       },
+  //       component: () => import('@/view/orderlist/orderlist.vue')
+  //     }
+  //   ]
+  // },
   {
     path: '/devicelist',
     name: 'devicelist',
@@ -122,7 +122,7 @@ export default [
         name: 'devicelist_page',
         meta: {
           icon: 'md-cog',
-          title: '设备管理'
+          title: '产品管理'
         },
         component: () => import('@/view/devicelist/devicelist.vue')
       }
@@ -141,7 +141,7 @@ export default [
         name: 'workList_page',
         meta: {
           icon: 'md-list',
-          title: '故障反馈'
+          title: '用户反馈'
         },
         component: () => import('@/view/worklist/worklist.vue')
       }
