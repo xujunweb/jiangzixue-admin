@@ -22,7 +22,6 @@
         :on-format-error="handleFormatError"
         :on-exceeded-size="handleMaxSize"
         :before-upload="handleBeforeUpload(1)"
-        multiple
         type="drag"
         :action="uploadUrl"
         :headers="headers"
@@ -55,7 +54,6 @@
         :on-format-error="handleFormatError"
         :on-exceeded-size="handleMaxSize"
         :before-upload="handleBeforeUpload(2)"
-        multiple
         type="drag"
         :action="uploadUrl"
         :headers="headers"
@@ -91,7 +89,6 @@
         :on-format-error="handleFormatError"
         :on-exceeded-size="handleMaxSize"
         :before-upload="handleBeforeUpload(3)"
-        multiple
         type="drag"
         :action="uploadUrl"
         :headers="headers"
@@ -124,7 +121,6 @@
         :on-format-error="handleFormatError"
         :on-exceeded-size="handleMaxSize"
         :before-upload="handleBeforeUpload(4)"
-        multiple
         type="drag"
         :action="uploadUrl"
         :headers="headers"

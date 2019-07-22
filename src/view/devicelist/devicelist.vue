@@ -48,7 +48,7 @@
           <!--<Button icon="ios-cloud-upload-outline">导入设备</Button>-->
         <!--</Upload>-->
       <!--</Form>-->
-      <Button size="large" icon="md-add" type="primary" @click="exportExcel">添加产品</Button>
+      <Button size="large" icon="md-add" type="primary" @click="updateDevice">添加产品</Button>
     </div>
     <Table border :columns="columns" :data="tableData" stripe ref="userTable"></Table>
     <div class="page">
@@ -58,6 +58,7 @@
     <Modal
       v-model="showEdit"
       title="编辑锁信息"
+      :loading="loading"
       @on-ok="updateDevice"
       @on-cancel="cancel">
       <Form ref="formInline" :model="formInline" :rules="ruleInline">
@@ -65,19 +66,52 @@
           <span>产品名称：</span><Input v-model.trim="formInline.name" placeholder="请输入产品名" style="width: 200px" />
         </FormItem>
         <FormItem prop="price" class="search-item">
-          <span>产品价格：</span><Input v-model.trim="formInline.price" placeholder="请输入产品价格" style="width: 200px" />
+          <span>产品价格：</span><Input v-model.trim="formInline.price" number placeholder="请输入产品价格" style="width: 200px" />
         </FormItem>
         <FormItem prop="type" class="search-item">
-          <span>产品类型：</span><Input v-model.trim="formInline.type" placeholder="请输入科室" style="width: 200px" />
+          <span>产品类型：</span>
+          <Select v-model="formInline.type" style="width:200px">
+          <Option v-for="item in typeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+          </Select>
         </FormItem>
-        <FormItem prop="imgs" class="search-item">
-          <span>产品图片：</span><Input v-model.trim="formInline.imgs" placeholder="请输入产品描述"style="width: 200px" />
+        <FormItem class="search-item">
+          <span>产品图片：</span>
+          <div class="demo-upload-list" v-if="formInline.imgs">
+            <template>
+              <img :src="formInline.imgs">
+              <div class="demo-upload-list-cover">
+                <Icon type="ios-eye-outline" @click.native="handleView(formInline.imgs)" size="30"></Icon>
+                <Icon type="ios-trash-outline" @click.native="handleRemove()" size="30"></Icon>
+              </div>
+            </template>
+          </div>
+          <Upload
+            ref="upload"
+            :show-upload-list="false"
+            :default-file-list="defaultList"
+            :on-success="handleSuccess"
+            :format="['jpg','jpeg','png']"
+            :max-size="5048"
+            :on-format-error="handleFormatError"
+            :on-exceeded-size="handleMaxSize"
+            :before-upload="handleBeforeUpload()"
+            type="drag"
+            :action="uploadUrl"
+            :headers="headers"
+            style="display: inline-block;width:150px;">
+            <div class="upload">
+              <Icon type="ios-camera" size="40"></Icon>
+            </div>
+          </Upload>
         </FormItem>
         <FormItem prop="desc" class="search-item">
           <span>产品描述：</span><Input v-model.trim="formInline.desc" placeholder="请输入产品描述" style="width: 400px" />
         </FormItem>
       </Form>
       <!--<div class="input-item"></div>-->
+    </Modal>
+    <Modal title="View Image" v-model="visible">
+      <img :src="imgName" v-if="visible" style="width: 100%">
     </Modal>
   </div>
 </template>
@@ -87,6 +121,7 @@
   import { getDeviceList,updateDevice,updateDevicePrice } from '@/api/devicelist'
   import {mapGetters} from 'vuex'
   import { uniq } from "../../libs/tools"
+  import config from '../../config/index'
   export default {
     name: 'devicelist',
     components: {
@@ -96,12 +131,13 @@
         headers:{
           "ticket":app.$store.state.user.userId
         },
+        defaultList: [
+        ],
+        imgName: '',
+        visible: false,
+        loading:true,
+        uploadUrl:config.baseUrl.pro+'file/upload', //全局配置
         total:0,
-        inputUserId:'', //绑定的用户ID
-        hospital:'',  //绑定的医院
-        department:'',  //绑定的科室
-        bind_user:'', //绑定的用户
-        inputPrice:'',  //锁价格
         formInline: {
           name: '',   //产品名
           price:'',  //价格
@@ -110,23 +146,21 @@
           type:'',     //类型
           id:'',   //产品Id
         },
-        stateList:[
-          {value:'',label:'全部'},
-          {value:0,label:'正常'},
-          {value:1,label:'维修中'},
-          {value:2,label:'禁用'},
-          {value:3,label:'使用中'},
+        typeList:[
+          {value:1,label:'非洲鼓'},
+          {value:2,label:'吉他'},
+          {value:3,label:'钢琴'},
         ],
-        stateMap:{0:'正常', 1:'维修中', 2:'禁用', 3:'使用中'},
+        typeMap:{ 1:'非洲鼓', 2:'吉他', 3:'钢琴'},
         pageSize: 15,
         showEdit:false,
-        showEditPrice:false,
         thisPage:1,
         selectIndex:0,     //选中的索引
         ruleInline: {
           name: [{ required: true, message: '请输入产品名', trigger: 'blur' },],
-          price: [{ required: true, message: '请输入产品价格', trigger: 'blur' },],
+          price: [{ required: true, message: '请输入产品价格', trigger: 'blur',type:'number' },],
           imgs: [{ required: true, message: '请上传产品图片', },],
+          type:[{ required: true, message: '请选择产品类型', },],
         },
         columns: [
           {title: '产品名称', key: 'name'},
@@ -198,6 +232,16 @@
       renderFormat (label) {
         return label.join(' => ')
       },
+      //查看大图
+      handleView (name) {
+        this.imgName = name
+        this.visible = true
+      },
+      //删除图片
+      handleRemove () {
+        this.$refs['upload'].fileList.splice(0, 1)
+        this.formInline.imgs = ''
+      },
       // 请求设备列表
       getDeviceList (p) {
         return new Promise((resolve, reject)=>{
@@ -216,20 +260,6 @@
             reject(err)
             console.log(err)
           })
-        })
-      },
-      // 发起搜索
-      handleSubmit (name) {
-        this.$refs[name].validate((valid) => {
-          if (valid) {
-            this.getDeviceList(1).then((res)=>{
-              this.$Message.success('操作成功!')
-            }).catch(err => {
-              this.$Message.error('操作失败!')
-            })
-          } else {
-            this.$Message.error('Fail!')
-          }
         })
       },
       //编辑锁信息
@@ -267,13 +297,6 @@
       //关闭弹窗
       cancel(){
         this.showEdit = false
-        this.showEditPrice = false
-      },
-      handleReset (name) {
-        this.$refs[name].resetFields()
-      },
-      changeDate (e) {
-        this.formInline.date = e
       },
       remove (index) {
         this.tableData.splice(index, 1)
@@ -284,25 +307,31 @@
         this.thisPage = page
         this.getDeviceList(page)
       },
-      // 导出excel
-      exportExcel () {
-        table2excel.transform(this.$refs.userTable, 'hrefToExportTable', '文件名')
-      },
       //上传之前
       handleBeforeUpload () {
-        this.handleSpinCustom()
-        return true
+        // this.handleSpinCustom()
+        return (e)=>{
+          const check = this.formInline.imgs.length < 1
+          if (!check) {
+            this.$Notice.warning({
+              title: '最多只能选择1张图片.'
+            })
+          }
+          return check
+        }
       },
       //上传成功
       handleSuccess (res, file) {
         this.$Spin.hide()
         console.log('上传成功-------',res,file)
-        this.getDeviceList(1)
+        for(let i=0,len=res.data.length;i<len;i++){
+          this.formInline.imgs = res.data[i].url
+        }
       },
       handleFormatError (file) {
         this.$Notice.warning({
           title: '文件类型错误',
-          desc: '文件' + file.name + ' 类型错误, 请选择 xlsx 或者 excel'
+          desc: '文件' + file.name + " 类型错误, 请选择 'jpg','jpeg','png'"
         })
       },
       handleMaxSize (file) {
@@ -348,6 +377,56 @@
         width: 75px;text-align: right;
       }
     }
+  }
+  .demo-upload-list{
+    display: inline-block;
+    width: 150px;
+    height: 130px;
+    text-align: center;
+    line-height: 130px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+    box-shadow: 0 1px 1px rgba(0,0,0,.2);
+    margin-right: 15px;
+    position: relative;
+  }
+  .upload-list{
+    display: inline-block;
+    width: 155px;
+    /*height: 130px;*/
+    margin-bottom: 15px;
+    margin-right: 15px;
+    .demo-upload-list{
+      margin-right: 0;
+    }
+  }
+  .save{
+    margin-top: 20px;
+  }
+  .demo-upload-list img{
+    width: 150px;
+    height: 130px;
+  }
+  .demo-upload-list-cover{
+    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,.6);
+  }
+  .demo-upload-list:hover .demo-upload-list-cover{
+    display: block;
+  }
+  .demo-upload-list-cover i{
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    margin: 0 2px;
   }
 </style>
 <style lang="less">
