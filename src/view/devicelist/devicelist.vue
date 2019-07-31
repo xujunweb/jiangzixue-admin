@@ -48,7 +48,7 @@
           <!--<Button icon="ios-cloud-upload-outline">导入设备</Button>-->
         <!--</Upload>-->
       <!--</Form>-->
-      <Button size="large" icon="md-add" type="primary" @click="updateDevice">添加产品</Button>
+      <Button size="large" icon="md-add" type="primary" @click="showEdit=true">添加产品</Button>
     </div>
     <Table border :columns="columns" :data="tableData" stripe ref="userTable"></Table>
     <div class="page">
@@ -57,9 +57,9 @@
     <a id="hrefToExportTable" style="postion: absolute;left: -10px;top: -10px;width: 0px;height: 0px;"></a>
     <Modal
       v-model="showEdit"
-      title="编辑锁信息"
+      :title="isAdd?'新增产品':'编辑产品'"
       :loading="loading"
-      @on-ok="updateDevice"
+      @on-ok="metUpdateDevice"
       @on-cancel="cancel">
       <Form ref="formInline" :model="formInline" :rules="ruleInline">
         <FormItem prop="name" class="search-item">
@@ -118,7 +118,7 @@
 
 <script>
   // import table2excel from '@/libs/table2excel.js'
-  import { getDeviceList,updateDevice,updateDevicePrice } from '@/api/devicelist'
+  import { getDeviceList,updateDevice,insertDevice } from '@/api/devicelist'
   import {mapGetters} from 'vuex'
   import { uniq } from "../../libs/tools"
   import config from '../../config/index'
@@ -136,6 +136,7 @@
         imgName: '',
         visible: false,
         loading:true,
+        isAdd:true,    //新增状态
         uploadUrl:config.baseUrl.pro+'file/upload', //全局配置
         total:0,
         formInline: {
@@ -145,7 +146,10 @@
           desc:'',  //描述
           type:'',     //类型
           id:'',   //产品Id
+          status:'0',
         },
+        insertDevice,
+        updateDevice,
         typeList:[
           {value:1,label:'非洲鼓'},
           {value:2,label:'吉他'},
@@ -164,8 +168,16 @@
         },
         columns: [
           {title: '产品名称', key: 'name'},
-          {title: '产品价格', key: 'price',},
-          {title: '产品类型', key: 'type',},
+          {title: '产品价格', key: 'price',
+              render: (h, params) => {
+                return h('div', params.row.price/100)
+              }
+          },
+          {title: '产品类型', key: 'type',
+            render: (h, params) => {
+              return h('div', this.typeMap[params.row.type])
+            }
+          },
           {title: '产品描述', key: 'desc',},
           {title: '产品图片', key: 'imgs',
             render: (h, params) => {
@@ -174,21 +186,14 @@
                   attrs : {
                     src:params.row.imgs
                   },
-                  style: {width: '200px'},
+                  style: {width: '100px',cursor:'pointer'},
                   on: {click: () => {
-                      this.selectIndex = params.index
-                      this.showEdit = true
-                      this.formInline = {...params.row }
+                      this.handleView(params.row.imgs)
                     }}
                 }),
               ])
             }
           },
-          // {title: '锁状态', key: 'state',
-          //   render: (h, params) => {
-          //     return h('div', this.stateMap[params.row.state])
-          //   }
-          // },
           {title: '操作', key: 'action', width: 200, align: 'center',
             render: (h, params) => {
                 return h('div', [
@@ -197,10 +202,27 @@
                     style: {marginRight: '5px'},
                     on: {click: () => {
                         this.selectIndex = params.index
+                        this.isAdd = false
                         this.showEdit = true
-                        this.formInline = {...params.row }
+                        this.formInline = {...params.row,price:params.row.price/100 }
                     }}
                   }, '编辑信息'),
+                  h('Button', {
+                    props: {type: 'primary', size: 'small'},
+                    style: {marginRight: '5px'},
+                    on: {click: () => {
+                        this.isAdd = false
+                        this.$Modal.info({
+                          title:'提示',
+                          content:'是否确定删除此产品？',
+                          loading:true,
+                          onOk:()=>{
+                            this.formInline = {...params.row,status:'1'}
+                            this.postPro()
+                          }
+                        })
+                      }}
+                  }, '删除')
                 ])
             }
           }
@@ -228,6 +250,15 @@
             ])
           }
         })
+      },
+      //重置按钮loading
+      resetLoading(){
+        setTimeout(() => {
+          this.loading = false
+          this.$nextTick(() => {
+            this.loading = true
+          })
+        }, 1000)
       },
       renderFormat (label) {
         return label.join(' => ')
@@ -263,28 +294,53 @@
         })
       },
       //编辑锁信息
-      updateDevice(){
+      metUpdateDevice(){
         this.$refs['formInline'].validate((valid) => {
           console.log('校验结果',valid)
           if (valid) {
-            var data = {
-              ...this.formInline
-            }
-            updateDevice(data).then((res)=>{
-              console.log('编辑锁信息--------',res)
-              if(res.data.code === 100){
-                this.tableData[this.selectIndex] = {...this.formInline}
-                this.$Message.success('操作成功!')
-                this.resetForm()
-              }
-            }).catch(err => {
-              this.$Message.error('操作失败!')
-            })
+            this.postPro()
+          }else {
+            this.resetLoading()
           }
         })
       },
+      //操作产品请求
+      postPro () {
+        var data = {
+          ...this.formInline,
+          price:this.formInline.price*100
+        }
+        this[this.isAdd?'insertDevice':'updateDevice'](data).then((res)=>{
+          console.log('编辑锁信息--------',res)
+          if(res.data.code === 100){
+            if(!this.isAdd){
+              this.tableData[this.selectIndex].name = this.formInline.name
+              this.tableData[this.selectIndex].price = this.formInline.price*100
+              this.tableData[this.selectIndex].imgs = this.formInline.imgs
+              this.tableData[this.selectIndex].desc = this.formInline.desc
+              this.tableData[this.selectIndex].type = this.formInline.type
+            }else {
+              this.getDeviceList(1)
+            }
+            this.$Message.success('操作成功!')
+            this.cancel()
+            this.resetLoading()
+          }
+        }).catch(err => {
+          this.resetLoading()
+          if(this.formInline.status === '1'){
+            //删除状态下
+            this.$Modal.remove()
+          }
+          this.$Message.error('操作失败!')
+        })
+      },
       //重置formInline数据
-      resetForm () {
+      //关闭弹窗
+      cancel(){
+        this.$refs['formInline'].resetFields()
+        this.showEdit = false
+        this.isAdd = true
         this.formInline = {
           name: '',   //产品名
           price:'',  //价格
@@ -292,11 +348,8 @@
           desc:'',  //描述
           type:'',     //类型
           id:'',   //产品Id
+          status:'0',
         }
-      },
-      //关闭弹窗
-      cancel(){
-        this.showEdit = false
       },
       remove (index) {
         this.tableData.splice(index, 1)

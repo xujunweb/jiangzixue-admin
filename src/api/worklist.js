@@ -1,16 +1,9 @@
 import axios from '@/libs/api.request'
-//获取工单列表
-export const getWorkList = ({pageNum, pageSize, type = '', device_no, fault_type = ''}) => {
+//获取咨询列表
+export const getWorkList = (data) => {
   return axios.request({
-    url: 'faultFeedback/pageByFaultFeedback',
-    data: {
-      pageNum,
-      pageSize,
-      type,
-      device_no,
-      fault_type,
-      user_id:app.$store.state.user.token==100000000?'':app.$store.state.user.token,
-    },
+    url: 'consultation/pageByConsultation',
+    data,
     headers:{
       "ticket":app.$store.state.user.token
     },
@@ -20,9 +13,10 @@ export const getWorkList = ({pageNum, pageSize, type = '', device_no, fault_type
 //标记已处理
 export const updateWork = ({id}) => {
   return axios.request({
-    url: 'faultFeedback/update',
+    url: 'consultation/update',
     data: {
       id,
+      visit:1,
     },
     headers:{
       "ticket":app.$store.state.user.token

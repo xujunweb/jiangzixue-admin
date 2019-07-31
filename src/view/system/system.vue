@@ -69,7 +69,7 @@
       <div v-for="(item,key) in uploadList3" class="upload-list">
         <div class="demo-upload-list" >
           <template v-if="!item.showProgress || item.showProgress == 100">
-            <img :src="item.img">
+            <img :src="item">
             <div class="demo-upload-list-cover">
               <Icon type="ios-eye-outline" @click.native="handleView(item)" size="30"></Icon>
               <Icon type="ios-trash-outline" @click.native="showRemove(key,3)" size="30"></Icon>

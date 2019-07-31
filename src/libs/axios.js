@@ -1,5 +1,6 @@
 import axios from 'axios'
 // import { Spin } from 'iview'
+import { Message } from 'iview'
 axios.defaults.withCredentials = true
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.timeout = 25000
@@ -41,6 +42,12 @@ class HttpRequest {
     instance.interceptors.response.use(res => {
       this.distroy(url)
       const { data, status } = res
+      if(data.code !== 100){
+        Message.error({
+          content:`错误${data.code}`
+        })
+        return Promise.reject(data)
+      }
       return { data, status }
     }, error => {
       this.distroy(url)

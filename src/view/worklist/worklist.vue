@@ -7,7 +7,7 @@
       </Select>
     </div>
     <Table border ref="selection" :columns="columns" :data="datalist" stripe class="table" @on-selection-change="selectionChange" ></Table>
-    <Button @click="handleSelectAll(true)">标记已处理</Button>
+    <Button @click="handleSelectAll(true)">标记已回访</Button>
     <div class="page">
       <Page :total="total" show-total show-elevator :page-size="pageSize" @on-change="pageSwitch" />
     </div>
@@ -31,15 +31,19 @@ export default {
       type:'',      //处理结果
       typeList: [
         {value:'',label:'全部'},
-        {value:'0',label:'未处理'},
-        {value:'1',label:'已处理'}
+        {value:'0',label:'未回访'},
+        {value:'1',label:'已回访'},
+        // {value:'2',label:'拒绝回访'}
       ],
+      typeMap:{
+        0:'未回访',
+        1:'已回访',
+        2:'拒绝回访',
+      },
       selecArry:[], //选中项
       faultMap:{
-        0:'其他',
-        1:'床坏了',
-        2:'锁坏了',
-        3:'还床失败'
+        0:'男',
+        1:'女',
       },
       columns: [
         {
@@ -48,66 +52,39 @@ export default {
           align: 'center'
         },
         {
-          title: '设备编号',
-          key: 'device_no'
+          title: '姓名',
+          key: 'name'
         },
         {
-          title: '用户手机号',
-          key: 'user',
+          title: '手机号',
+          key: 'phone',
+        },
+        {
+          title: '性别',
+          key: 'sex',
           render:(h, params)=>{
-            return h('span',params.row.user.telphone)
+            return h('span',this.faultMap[params.row.sex])
           }
         },
         {
-          title: '故障类型',
-          width:120,
-          key: 'fault_type',
-          render:(h, params)=>{
-            return h('span',this.faultMap[params.row.fault_type])
-          }
+          title: '邮箱',
+          key: 'email'
         },
         {
-          title: '描述',
+          title: '地址',
+          key: 'address'
+        },
+        {
+          title: '留言',
           key: 'desc'
         },
         {
-          title: '故障图片',
-          key: 'images',
-          render: (h, params) => {
-            var imgs = []
-            console.log(params)
-            if(params.row.imgs){
-              let oldimgs = params.row.imgs.split(',')
-              for(let i =0,len=oldimgs.length;i<len;i++){
-                imgs.push(h('img', {
-                  attrs : {
-                    src:oldimgs[i]
-                  },
-                  style: {
-                    marginRight: '5px', width:'45px', height:'50px', cursor:'pointer', float:'left', margin:'5px'
-                  },
-                  on: {
-                    click: () => {
-                      this.handleView(oldimgs[i])
-                    }
-                  }
-                }))
-              }
-            }
-            return h('div',imgs)
-          }
-        },
-        {
-          title: '提交时间',
-          key: 'insert_time'
-        },
-        {
-          title: '是否处理',
+          title: '是否回访',
           width:100,
           align: 'center',
           key: 'result',
           render: (h, params) => {
-            return h('div', params.row.type?'已处理':'未处理')
+            return h('div', this.typeMap[params.row.visit])
           }
         }
       ],
@@ -169,12 +146,12 @@ export default {
       this.imgName = name
       this.visible = true
     },
-    //查询故障列表
+    //咨询列表
     getWorkList (p) {
       let data = {
         pageNum:p,
         pageSize:20,
-        type:this.type
+        visit:this.type
       }
       getWorkList(data).then((res)=>{
         console.log('故障列表-----',res)

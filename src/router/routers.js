@@ -44,29 +44,6 @@ export default [
       }
     ]
   },
-  // {
-  //   path: '/userlist',
-  //   name: 'userlist',
-  //   meta: {
-  //     access: [1],
-  //     hide: true,
-  //     icon: 'md-person',
-  //     title: '用户管理'
-  //   },
-  //   component: Main,
-  //   children: [
-  //     {
-  //       path: 'userlist_page',
-  //       name: 'userlist_page',
-  //       meta: {
-  //         access: [1],
-  //         icon: 'md-person',
-  //         title: '用户管理'
-  //       },
-  //       component: () => import('@/view/userlist/userlist.vue')
-  //     }
-  //   ]
-  // },
   {
     path: '/system',
     name: 'system',
@@ -90,25 +67,6 @@ export default [
       }
     ]
   },
-  // {
-  //   path: '/orderList',
-  //   name: 'orderList',
-  //   meta: {
-  //     hide: true
-  //   },
-  //   component: Main,
-  //   children: [
-  //     {
-  //       path: 'orderList_page',
-  //       name: 'orderList_page',
-  //       meta: {
-  //         icon: 'md-reorder',
-  //         title: '订单管理'
-  //       },
-  //       component: () => import('@/view/orderlist/orderlist.vue')
-  //     }
-  //   ]
-  // },
   {
     path: '/devicelist',
     name: 'devicelist',
@@ -141,7 +99,7 @@ export default [
         name: 'workList_page',
         meta: {
           icon: 'md-list',
-          title: '用户反馈'
+          title: '用户咨询'
         },
         component: () => import('@/view/worklist/worklist.vue')
       }

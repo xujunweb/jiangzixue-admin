@@ -26,10 +26,10 @@ export const updateDevice = (data) => {
     method: 'post'
   })
 }
-//编辑锁价格
-export const updateDevicePrice = (data) => {
+//新增产品
+export const insertDevice = (data) => {
   return axios.request({
-    url: 'lockInfo/updateUnitPrice',
+    url: 'product/insert',
     data: {
       ...data
     },
