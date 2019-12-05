@@ -1,9 +1,10 @@
 import axios from 'axios'
-// import { Spin } from 'iview'
+import { Spin } from 'iview'
 import { Message } from 'iview'
 axios.defaults.withCredentials = true
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.timeout = 25000
+let loading = false
 class HttpRequest {
   constructor (baseUrl = baseURL) {
     this.baseUrl = baseUrl
@@ -22,7 +23,10 @@ class HttpRequest {
   distroy (url) {
     delete this.queue[url]
     if (!Object.keys(this.queue).length) {
-      // Spin.hide()
+      if(loading){
+        loading = false
+        Spin.hide()
+      }
     }
   }
   interceptors (instance, url) {
@@ -31,7 +35,10 @@ class HttpRequest {
       console.log('请求配置-----',config)
       // 添加全局的loading...
       if (!Object.keys(this.queue).length) {
-        // Spin.show() // 不建议开启，因为界面不友好
+        if(config.loading){
+          loading = true
+          Spin.show() // 不建议开启，因为界面不友好
+        }
       }
       this.queue[url] = true
       return config

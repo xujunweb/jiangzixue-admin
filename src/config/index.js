@@ -15,7 +15,7 @@ export default {
   baseUrl: {
     // dev: 'https://www.easy-mock.com/mock/5add9213ce4d0e69998a6f51/iview-admin/',
     // dev: 'https://www.chmbkh.com/',
-    dev: '',
-    pro: 'http://120.79.240.245:8086/website/'
+    dev: 'http://111.231.134.140:8086/website/',
+    pro: 'http://111.231.134.140:8086/website/'
   }
 }

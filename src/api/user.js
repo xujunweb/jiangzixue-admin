@@ -51,7 +51,8 @@ export const updateAppointInfo = (key,value) => {
     headers:{
       "ticket":app.$store.state.user.token
     },
-    method: 'post'
+    method: 'post',
+    loading:true,
   })
 }
 // 获取指定的配置信息
