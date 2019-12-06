@@ -336,12 +336,13 @@ export default {
         console.log('上传之前的-----',index,e)
         var uploadList = 'uploadList'+this.imgIndex
         const check = this[uploadList].length < 1
-        if (!check) {
+        if (!check && this.imgIndex !=1) {
           this.$Notice.warning({
             title: '最多只能选择1张图片.'
           })
+          return false
         }
-        return check
+        return true
       }
     },
   }
